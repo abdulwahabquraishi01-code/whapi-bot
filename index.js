@@ -4,7 +4,7 @@ const axios = require("axios");
 const app = express();
 app.use(express.json());
 
-const TOKEN = "t0tVTsAhb5ffawS8pYxKxocwTMrzcsxh";
+const TOKEN = process.env.WHAPI_TOKEN; 
 const BASE_URL = "https://gate.whapi.cloud";
 
 let users = {};
@@ -37,7 +37,14 @@ app.post("/webhook", async (req, res) => {
         await sendMainLayout(from);
       } else {
         await send(from, "❌ Exited. Dobara shuru karne ke liye *Hi* likhein.");
+        user.step = "start";
       }
+      return res.sendStatus(200);
+    }
+
+    if (text === "0") {
+      user.step = "main_menu";
+      await sendMainLayout(from);
       return res.sendStatus(200);
     }
 
@@ -55,12 +62,6 @@ app.post("/webhook", async (req, res) => {
       return res.sendStatus(200);
     }
 
-    if (text === "0") {
-      user.step = "main_menu";
-      await sendMainLayout(from);
-      return res.sendStatus(200);
-    }
-
     await send(from, "👋 Welcome! Menu dekhne ke liye *Hi* likhein.");
     res.sendStatus(200);
 
@@ -75,6 +76,10 @@ async function sendMainLayout(from) {
 }
 
 async function send(to, body) {
+  if (!TOKEN) {
+    console.log("Error: WHAPI_TOKEN Railway Variables mein missing hai!");
+    return;
+  }
   try {
     await axios.post(`${BASE_URL}/messages/text`, { to, body }, {
       headers: { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" }
@@ -84,5 +89,9 @@ async function send(to, body) {
   }
 }
 
-// Vercel ke liye server listen nahi karte, export karte hain
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
 module.exports = app;
