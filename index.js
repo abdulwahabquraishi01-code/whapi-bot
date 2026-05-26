@@ -6,7 +6,6 @@ const BASE_URL = "https://gate.whapi.cloud";
 let users = {};
 
 module.exports = async (req, res) => {
-
   if (req.method !== "POST") {
     return res.status(200).send("OK");
   }
@@ -19,13 +18,12 @@ module.exports = async (req, res) => {
   const text = msg.toLowerCase();
 
   if (!users[from]) {
-    users[from] = { step: "main_menu", order: {} };
+    users[from] = { step: "start", order: {} };
   }
 
   const user = users[from];
 
   try {
-
     // START
     if (text === "start" || text === "hi") {
       user.step = "main_menu";
@@ -40,7 +38,7 @@ module.exports = async (req, res) => {
       return res.status(200).end();
     }
 
-    // ORDER FLOW
+    // ORDER NAME
     if (text === "2" && user.step === "main_menu") {
       user.step = "order_name";
 
@@ -72,8 +70,8 @@ module.exports = async (req, res) => {
       return res.status(200).end();
     }
 
+    // CONFIRM
     if (user.step === "order_confirm" && text === "1") {
-
       await send(from,
 `✅ Order Accepted!
 Your SIM will be delivered soon.`);
@@ -84,8 +82,8 @@ Your SIM will be delivered soon.`);
       return res.status(200).end();
     }
 
+    // CANCEL
     if (user.step === "order_confirm" && text === "2") {
-
       user.order = {};
       user.step = "main_menu";
 
@@ -97,7 +95,7 @@ Your SIM will be delivered soon.`);
 
   } catch (e) {
     console.log(e.message);
-    return res.status(200).end();
+    return res.status(500).end();
   }
 };
 
@@ -113,4 +111,4 @@ async function send(to, body) {
       }
     }
   );
-}
+    }
