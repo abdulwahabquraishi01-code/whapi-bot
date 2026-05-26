@@ -112,3 +112,6 @@ async function send(to, body) {
     }
   );
     }
+module.exports = async (req, res) => {
+  return res.status(200).send("Webhook Working ✅");
+};
