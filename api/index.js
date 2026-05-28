@@ -117,12 +117,20 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("Bot is running");
+});
+
 app.post("/webhook", (req, res) => {
   console.log(req.body);
   res.send("OK");
 });
-module.exports = app;
-module.exports.handler = serverless(app);
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
+});
 
 module.exports = async (req, res) => {
   return res.status(200).send("Webhook Working ✅");
